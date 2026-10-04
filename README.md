@@ -14,30 +14,23 @@ Soporta dos modos de ejecución:
 ## Estructura del proyecto
 
 ```
-dvrk_psm_kinematics/
-├── psm_kinematics.py         # Núcleo: parámetros DH, FK, IK, Jacobiano
-├── psm_visualization.py      # Visualización 3D y animación
-├── psm_scene.py              # Escena del simulador: mesa, cilindros, agarre
+sistema_completo_psm/
+├── psm_kinematics.py         # Núcleo PSM: parámetros DH, FK, IK, Jacobiano
+├── psm_scene.py              # Escena 3D del simulador: mesa horizontal, cilindros, peg transfer
 ├── psm_pick_place.py         # Planeador pick-and-place pose-a-pose
-├── psm_ur5_kinematics.py     # Wrapper UR5 + acople UR5↔PSM
-├── psm_main.py               # Script CLI: trayectoria lineal de 2 cm
-├── psm_arc_constant.py       # Script CLI: arco con orientación constante
-├── psm_arc_rolling.py        # Script CLI: arco con roll variable
-├── psm_simulator_gui.py      # Simulador laparoscópico con GUI PyQt6
-├── psm_simulator_demo.py     # Demo headless del simulador (genera GIF)
-├── psm_ur5_coupled.py        # Sistema acoplado UR5+PSM peg transfer (CLI)
-├── psm_ur5_simulator_gui.py  # GUI interactiva del sistema acoplado UR5+PSM
-├── psm_ur5_render.py         # Render compartido del sistema acoplado
-├── psm_test.ipynb            # Notebook Jupyter / Colab
-├── requirements.txt          # Dependencias mínimas
-├── documento/                # Reporte técnico LaTeX (32 páginas, 12 figuras)
+├── psm_ur5_kinematics.py     # Kinematics acoplada UR5 + PSM y cálculo de fulcro/trocar
+├── psm_ur5_render.py         # Render 3D PyVista/Matplotlib con rango X [-0.8, 0.0] m
+├── psm_ur5_simulator_gui.py  # GUI interactiva PyQt6 con control articular de 4 GDL para EndoWrist
+├── psm_ur5_coupled.py        # Script CLI del sistema acoplado UR5+PSM
+├── Nueva Cinematica/         # Cinemática de Fairino FR5 y EndoWrist (README_ENDO_WRIST.md, fr5_kinematics.py)
+├── test_fk_ik.py             # Pruebas unitarias FK/IK
+├── verificar_instalacion.py  # Verificación de librerías y entorno Python
+├── requirements.txt          # Dependencias (PyQt6, PyVista, NumPy, SciPy, Matplotlib)
+├── .gitignore                # Reglas para Git
 └── README.md
 ```
 
-Los módulos `psm_kinematics.py`, `psm_visualization.py`, `psm_scene.py` y
-`psm_pick_place.py` son **idénticos** en todos los modos de uso: solo cambian
-los scripts/notebook que los importan. El módulo `psm_ur5_kinematics.py`
-añade la integración con un brazo industrial UR5 que sostiene el trocar.
+Los módulos `psm_kinematics.py`, `psm_scene.py` y `psm_pick_place.py` proporcionan la cinemática base y la lógica de tareas. El módulo `psm_ur5_kinematics.py` integra la cinemática del robot soporte acoplado con la herramienta PSM y la restricción del fulcro/trocar.
 
 ---
 
@@ -51,6 +44,19 @@ añade la integración con un brazo industrial UR5 que sostiene el trocar.
   incorporada implícitamente en la cadena DH.
 - **Cinemática inversa**: solver Levenberg-Marquardt amortiguado (DLS) con
   guess analítico inicial y multistart automático.
+
+### Control Articular de EndoWrist (4 GDL)
+Para coincidir con la estructura física y entornos como Unity, la herramienta EndoWrist se controla directamente en sus 4 articulaciones independientes:
+1. **Shaft (Roll)**: `[-180°, +180°]` (`[-π, +π] rad`) — Giro sobre el eje del shaft.
+2. **Wrist (Pitch)**: `[-70°, +70°]` (`[-1.2217, +1.2217] rad`) — Inclinación de la muñeca (0° es recto).
+3. **Jaw Dx**: `[-60°, +60°]` (`[-1.0472, +1.0472] rad`) — Mandíbula derecha (0° es cerrada).
+4. **Jaw Sx**: `[-60°, +60°]` (`[-1.0472, +1.0472] rad`) — Mandíbula izquierda (0° es cerrada).
+
+### Visualización y GUI Interactiva
+- **Rango 3D centrado**: El escenario 3D muestra la ilustración del modelo desde `X = -0.8 m` hasta `X = 0.0 m`.
+- **Mesa horizontal de trabajo**: Superficie perfectamente plana sin inclinación para la escena de peg-transfer / ordenamiento de cilindros.
+- **Sincronización de FPS efectiva**: El simulador (`psm_ur5_simulator_gui.py`) utiliza un reloj de alta precisión (`time.perf_counter()`) para garantizar que las animaciones se reproduzcan a la frecuencia seleccionada (30, 60 o 120 FPS).
+- **Cálculo exacto del Fulcro**: Vector de fulcro/trocar corregido para ubicarse exactamente hacia atrás a lo largo de $-Z_{\text{tcp}}$, manteniendo la alineación física con la estrella azul/trocar.
 
 ### Configuración HOME
 
