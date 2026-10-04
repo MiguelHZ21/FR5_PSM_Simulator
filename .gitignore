@@ -1,0 +1,25 @@
+# Virtual Environment
+.venv/
+env/
+venv/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Pytest / Coverage
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Logs and exported output files
+*.log
+ArticularPoints_*.txt
+CartesianPoints_*.txt
+resultados_gui_ur5/
+
+# OS / Editor generated
+.DS_Store
+.vscode/
+.idea/

@@ -1,0 +1,21 @@
+# Dependencias mínimas para ejecución local
+# (cinemática del PSM, scripts CLI, notebook, simulador)
+numpy>=1.20,<2.0      # roboticstoolbox-python aún no soporta NumPy 2.x
+matplotlib>=3.3
+pillow>=9.0           # necesario para guardar animaciones como GIF
+
+# Necesario solo para el simulador con GUI (psm_simulator_gui.py)
+# Comentar esta línea si solo se usan los scripts CLI o el notebook.
+PyQt6>=6.4
+
+# Necesario solo para el sistema acoplado UR5+PSM (psm_ur5_coupled.py)
+# Comentar estas líneas si no se usa el módulo UR5.
+roboticstoolbox-python>=1.1
+spatialmath-python>=1.1
+
+# Opcional: solo si se quiere ejecutar también el notebook
+# jupyter>=1.0
+# notebook>=6.4
+
+# Opcional: solo para enviar trayectorias al robot UR5 real vía RTDE
+# ur-rtde>=1.5
